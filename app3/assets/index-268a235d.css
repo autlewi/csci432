@@ -1,0 +1,47 @@
+
+#logo {
+  width: 250px;
+  height: 250px;
+  margin: 2rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/*.triangle {
+  width: 0;
+  height: 0;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+
+
+  border-bottom: 50px solid rgb(255, 255, 255);
+}*/
+body {
+  background-image: url("/app3/assets/galaxy-a03cbe3d.jpg");
+  background-repeat: no-repeat;
+  background-color: black;
+  background-size: 100%;
+}
+/*#title {
+  font-size: 50;
+  align-content: center;
+  color: #fff;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-display: block;;
+}*/
+img {
+  border-radius: 25px;
+  animation: logoRotate;
+
+  box-shadow: 
+  0 0 100px 10px #fff, 
+  0 0 100px 15px rgb(181, 36, 181),
+  0 0 140px 20px rgb(29, 174, 222);
+
+  background-color: #fff;
+  width: 50%;
+}
+
