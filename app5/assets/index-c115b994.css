@@ -1,0 +1,38 @@
+
+
+#call {
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 40px;
+    width: 50px
+}
+
+
+
+label {
+    padding: 5.4px 5.4px 5.4px 0
+}
+
+legend {
+    margin-top: 20px
+}
+
+html {
+    padding-bottom: 50px
+}
+
+
+#app {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-weight: 400
+}
+
+
+#app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem
+}
