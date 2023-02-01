@@ -104,28 +104,6 @@ const isSpecialBooleanAttr = /* @__PURE__ */ makeMap(specialBooleanAttrs);
 function includeBooleanAttr(value) {
   return !!value || value === "";
 }
-const toDisplayString = (val) => {
-  return isString(val) ? val : val == null ? "" : isArray(val) || isObject(val) && (val.toString === objectToString || !isFunction(val.toString)) ? JSON.stringify(val, replacer, 2) : String(val);
-};
-const replacer = (_key, val) => {
-  if (val && val.__v_isRef) {
-    return replacer(_key, val.value);
-  } else if (isMap(val)) {
-    return {
-      [`Map(${val.size})`]: [...val.entries()].reduce((entries, [key, val2]) => {
-        entries[`${key} =>`] = val2;
-        return entries;
-      }, {})
-    };
-  } else if (isSet(val)) {
-    return {
-      [`Set(${val.size})`]: [...val.values()]
-    };
-  } else if (isObject(val) && !isArray(val) && !isPlainObject(val)) {
-    return String(val);
-  }
-  return val;
-};
 const EMPTY_OBJ = {};
 const EMPTY_ARR = [];
 const NOOP = () => {
@@ -1007,58 +985,27 @@ function markRaw(value) {
 }
 const toReactive = (value) => isObject(value) ? reactive(value) : value;
 const toReadonly = (value) => isObject(value) ? readonly(value) : value;
-function trackRefValue(ref2) {
+function trackRefValue(ref) {
   if (shouldTrack && activeEffect) {
-    ref2 = toRaw(ref2);
+    ref = toRaw(ref);
     {
-      trackEffects(ref2.dep || (ref2.dep = createDep()));
+      trackEffects(ref.dep || (ref.dep = createDep()));
     }
   }
 }
-function triggerRefValue(ref2, newVal) {
-  ref2 = toRaw(ref2);
-  if (ref2.dep) {
+function triggerRefValue(ref, newVal) {
+  ref = toRaw(ref);
+  if (ref.dep) {
     {
-      triggerEffects(ref2.dep);
+      triggerEffects(ref.dep);
     }
   }
 }
 function isRef(r) {
   return !!(r && r.__v_isRef === true);
 }
-function ref(value) {
-  return createRef(value, false);
-}
-function createRef(rawValue, shallow) {
-  if (isRef(rawValue)) {
-    return rawValue;
-  }
-  return new RefImpl(rawValue, shallow);
-}
-class RefImpl {
-  constructor(value, __v_isShallow) {
-    this.__v_isShallow = __v_isShallow;
-    this.dep = void 0;
-    this.__v_isRef = true;
-    this._rawValue = __v_isShallow ? value : toRaw(value);
-    this._value = __v_isShallow ? value : toReactive(value);
-  }
-  get value() {
-    trackRefValue(this);
-    return this._value;
-  }
-  set value(newVal) {
-    const useDirectValue = this.__v_isShallow || isShallow(newVal) || isReadonly(newVal);
-    newVal = useDirectValue ? newVal : toRaw(newVal);
-    if (hasChanged(newVal, this._rawValue)) {
-      this._rawValue = newVal;
-      this._value = useDirectValue ? newVal : toReactive(newVal);
-      triggerRefValue(this);
-    }
-  }
-}
-function unref(ref2) {
-  return isRef(ref2) ? ref2.value : ref2;
+function unref(ref) {
+  return isRef(ref) ? ref.value : ref;
 }
 const shallowUnwrapHandlers = {
   get: (target, key, receiver) => unref(Reflect.get(target, key, receiver)),
@@ -1458,7 +1405,6 @@ function renderComponentRoot(instance) {
       fallthroughAttrs = Component.props ? attrs : getFunctionalFallthrough(attrs);
     }
   } catch (err) {
-    blockStack.length = 0;
     handleError(
       err,
       instance,
@@ -3139,11 +3085,11 @@ function setRef(rawRef, oldRawRef, parentSuspense, vnode, isUnmount = false) {
   }
   const refValue = vnode.shapeFlag & 4 ? getExposeProxy(vnode.component) || vnode.component.proxy : vnode.el;
   const value = isUnmount ? null : refValue;
-  const { i: owner, r: ref2 } = rawRef;
+  const { i: owner, r: ref } = rawRef;
   const oldRef = oldRawRef && oldRawRef.r;
   const refs = owner.refs === EMPTY_OBJ ? owner.refs = {} : owner.refs;
   const setupState = owner.setupState;
-  if (oldRef != null && oldRef !== ref2) {
+  if (oldRef != null && oldRef !== ref) {
     if (isString(oldRef)) {
       refs[oldRef] = null;
       if (hasOwn(setupState, oldRef)) {
@@ -3153,40 +3099,40 @@ function setRef(rawRef, oldRawRef, parentSuspense, vnode, isUnmount = false) {
       oldRef.value = null;
     }
   }
-  if (isFunction(ref2)) {
-    callWithErrorHandling(ref2, owner, 12, [value, refs]);
+  if (isFunction(ref)) {
+    callWithErrorHandling(ref, owner, 12, [value, refs]);
   } else {
-    const _isString = isString(ref2);
-    const _isRef = isRef(ref2);
+    const _isString = isString(ref);
+    const _isRef = isRef(ref);
     if (_isString || _isRef) {
       const doSet = () => {
         if (rawRef.f) {
-          const existing = _isString ? hasOwn(setupState, ref2) ? setupState[ref2] : refs[ref2] : ref2.value;
+          const existing = _isString ? hasOwn(setupState, ref) ? setupState[ref] : refs[ref] : ref.value;
           if (isUnmount) {
             isArray(existing) && remove(existing, refValue);
           } else {
             if (!isArray(existing)) {
               if (_isString) {
-                refs[ref2] = [refValue];
-                if (hasOwn(setupState, ref2)) {
-                  setupState[ref2] = refs[ref2];
+                refs[ref] = [refValue];
+                if (hasOwn(setupState, ref)) {
+                  setupState[ref] = refs[ref];
                 }
               } else {
-                ref2.value = [refValue];
+                ref.value = [refValue];
                 if (rawRef.k)
-                  refs[rawRef.k] = ref2.value;
+                  refs[rawRef.k] = ref.value;
               }
             } else if (!existing.includes(refValue)) {
               existing.push(refValue);
             }
           }
         } else if (_isString) {
-          refs[ref2] = value;
-          if (hasOwn(setupState, ref2)) {
-            setupState[ref2] = value;
+          refs[ref] = value;
+          if (hasOwn(setupState, ref)) {
+            setupState[ref] = value;
           }
         } else if (_isRef) {
-          ref2.value = value;
+          ref.value = value;
           if (rawRef.k)
             refs[rawRef.k] = value;
         } else
@@ -3222,7 +3168,7 @@ function baseCreateRenderer(options, createHydrationFns) {
       optimized = false;
       n2.dynamicChildren = null;
     }
-    const { type, ref: ref2, shapeFlag } = n2;
+    const { type, ref, shapeFlag } = n2;
     switch (type) {
       case Text:
         processText(n1, n2, container, anchor);
@@ -3250,8 +3196,8 @@ function baseCreateRenderer(options, createHydrationFns) {
         } else
           ;
     }
-    if (ref2 != null && parentComponent) {
-      setRef(ref2, n1 && n1.ref, parentSuspense, n2 || n1, !n2);
+    if (ref != null && parentComponent) {
+      setRef(ref, n1 && n1.ref, parentSuspense, n2 || n1, !n2);
     }
   };
   const processText = (n1, n2, container, anchor) => {
@@ -3884,9 +3830,9 @@ function baseCreateRenderer(options, createHydrationFns) {
     }
   };
   const unmount = (vnode, parentComponent, parentSuspense, doRemove = false, optimized = false) => {
-    const { type, props, ref: ref2, children, dynamicChildren, shapeFlag, patchFlag, dirs } = vnode;
-    if (ref2 != null) {
-      setRef(ref2, null, parentSuspense, vnode, true);
+    const { type, props, ref, children, dynamicChildren, shapeFlag, patchFlag, dirs } = vnode;
+    if (ref != null) {
+      setRef(ref, null, parentSuspense, vnode, true);
     }
     if (shapeFlag & 256) {
       parentComponent.ctx.deactivate(vnode);
@@ -4107,38 +4053,10 @@ const Fragment = Symbol(void 0);
 const Text = Symbol(void 0);
 const Comment = Symbol(void 0);
 const Static = Symbol(void 0);
-const blockStack = [];
 let currentBlock = null;
-function openBlock(disableTracking = false) {
-  blockStack.push(currentBlock = disableTracking ? null : []);
-}
-function closeBlock() {
-  blockStack.pop();
-  currentBlock = blockStack[blockStack.length - 1] || null;
-}
 let isBlockTreeEnabled = 1;
 function setBlockTracking(value) {
   isBlockTreeEnabled += value;
-}
-function setupBlock(vnode) {
-  vnode.dynamicChildren = isBlockTreeEnabled > 0 ? currentBlock || EMPTY_ARR : null;
-  closeBlock();
-  if (isBlockTreeEnabled > 0 && currentBlock) {
-    currentBlock.push(vnode);
-  }
-  return vnode;
-}
-function createElementBlock(type, props, children, patchFlag, dynamicProps, shapeFlag) {
-  return setupBlock(createBaseVNode(
-    type,
-    props,
-    children,
-    patchFlag,
-    dynamicProps,
-    shapeFlag,
-    true
-    /* isBlock */
-  ));
 }
 function isVNode(value) {
   return value ? value.__v_isVNode === true : false;
@@ -4148,8 +4066,8 @@ function isSameVNodeType(n1, n2) {
 }
 const InternalObjectKey = `__vInternal`;
 const normalizeKey = ({ key }) => key != null ? key : null;
-const normalizeRef = ({ ref: ref2, ref_key, ref_for }) => {
-  return ref2 != null ? isString(ref2) || isRef(ref2) || isFunction(ref2) ? { i: currentRenderingInstance, r: ref2, k: ref_key, f: !!ref_for } : ref2 : null;
+const normalizeRef = ({ ref, ref_key, ref_for }) => {
+  return ref != null ? isString(ref) || isRef(ref) || isFunction(ref) ? { i: currentRenderingInstance, r: ref, k: ref_key, f: !!ref_for } : ref : null;
 };
 function createBaseVNode(type, props = null, children = null, patchFlag = 0, dynamicProps = null, shapeFlag = type === Fragment ? 0 : 1, isBlockNode = false, needFullChildrenNormalization = false) {
   const vnode = {
@@ -4251,7 +4169,7 @@ function guardReactiveProps(props) {
   return isProxy(props) || InternalObjectKey in props ? extend({}, props) : props;
 }
 function cloneVNode(vnode, extraProps, mergeRef = false) {
-  const { props, ref: ref2, patchFlag, children } = vnode;
+  const { props, ref, patchFlag, children } = vnode;
   const mergedProps = extraProps ? mergeProps(props || {}, extraProps) : props;
   const cloned = {
     __v_isVNode: true,
@@ -4263,8 +4181,8 @@ function cloneVNode(vnode, extraProps, mergeRef = false) {
       // #2078 in the case of <component :is="vnode" ref="extra"/>
       // if the vnode itself already has a ref, cloneVNode will need to merge
       // the refs so the single vnode can be set on multiple refs
-      mergeRef && ref2 ? isArray(ref2) ? ref2.concat(normalizeRef(extraProps)) : [ref2, normalizeRef(extraProps)] : normalizeRef(extraProps)
-    ) : ref2,
+      mergeRef && ref ? isArray(ref) ? ref.concat(normalizeRef(extraProps)) : [ref, normalizeRef(extraProps)] : normalizeRef(extraProps)
+    ) : ref,
     scopeId: vnode.scopeId,
     slotScopeIds: vnode.slotScopeIds,
     children,
@@ -4298,6 +4216,11 @@ function cloneVNode(vnode, extraProps, mergeRef = false) {
 }
 function createTextVNode(text = " ", flag = 0) {
   return createVNode(Text, null, text, flag);
+}
+function createStaticVNode(content, numberOfNodes) {
+  const vnode = createVNode(Static, null, content);
+  vnode.staticCount = numberOfNodes;
+  return vnode;
 }
 function normalizeVNode(child) {
   if (child == null || typeof child === "boolean") {
@@ -4999,62 +4922,18 @@ function normalizeContainer(container) {
   }
   return container;
 }
-const Comp1_vue_vue_type_style_index_0_lang = "";
-const _hoisted_1$1 = ["src"];
-const _sfc_main$2 = {
-  __name: "Comp1",
-  setup(__props) {
-    const title = ref("Landscapes of Ghibli");
-    const imgSrc = ref("ghibli.jpg");
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock(Fragment, null, [
-        createBaseVNode("h1", null, toDisplayString(title.value), 1),
-        createBaseVNode("img", {
-          src: imgSrc.value,
-          class: "center"
-        }, null, 8, _hoisted_1$1)
-      ], 64);
-    };
+const _export_sfc = (sfc, props) => {
+  const target = sfc.__vccOpts || sfc;
+  for (const [key, val] of props) {
+    target[key] = val;
   }
+  return target;
 };
-const Comp2_vue_vue_type_style_index_0_lang = "";
-const _hoisted_1 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
-const _hoisted_2 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
-const _hoisted_3 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
-const _sfc_main$1 = {
-  __name: "Comp2",
-  setup(__props) {
-    const lorempar1 = ref("Loremp1");
-    loremp1.value = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Nullam vehicula ipsum a arcu cursus vitae congue mauris rhoncus. Porta nibh venenatis cras sed felis. Tortor pretium viverra suspendisse potenti. Eget lorem dolor sed viverra ipsum. Diam vulputate ut pharetra sit amet aliquam id diam. Et netus et malesuada fames ac turpis egestas sed tempus. Enim tortor at auctor urna nunc id. Facilisis sed odio morbi quis commodo odio aenean sed adipiscing. Elit pellentesque habitant morbi tristique senectus et netus et. Facilisi morbi tempus iaculis urna id volutpat lacus laoreet.";
-    const lorempar2 = ref("Loremp2");
-    loremp2.value = "Consequat ac felis donec et odio pellentesque diam. Nibh tellus molestie nunc non. Euismod elementum nisi quis eleifend quam adipiscing vitae proin sagittis. Nisl condimentum id venenatis a condimentum vitae sapien pellentesque. Feugiat pretium nibh ipsum consequat nisl vel pretium. Ipsum a arcu cursus vitae congue mauris rhoncus. Mattis enim ut tellus elementum sagittis vitae et leo duis. At volutpat diam ut venenatis tellus in metus vulputate. In fermentum et sollicitudin ac orci. Mauris cursus mattis molestie a iaculis at erat pellentesque adipiscing. Id eu nisl nunc mi ipsum faucibus vitae aliquet.";
-    const lorempar3 = ref("Loremp3");
-    loremp3.value = "Id neque aliquam vestibulum morbi blandit cursus risus. Sapien faucibus et molestie ac feugiat sed lectus vestibulum mattis. Convallis a cras semper auctor neque vitae. Quis commodo odio aenean sed adipiscing. In metus vulputate eu scelerisque felis imperdiet. Augue lacus viverra vitae congue eu consequat. Aliquam id diam maecenas ultricies mi eget mauris pharetra et. Elementum integer enim neque volutpat ac tincidunt vitae. Fermentum leo vel orci porta non. In massa tempor nec feugiat nisl pretium. Molestie at elementum eu facilisis sed odio morbi. Nunc sed augue lacus viverra vitae congue eu consequat ac. Ut diam quam nulla porttitor massa id neque aliquam vestibulum.";
-    const textColor = ref("black");
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("span", {
-        class: normalizeClass(textColor.value)
-      }, [
-        createBaseVNode("p", null, toDisplayString(lorempar1.value), 1),
-        _hoisted_1,
-        createBaseVNode("p", null, toDisplayString(lorempar2.value), 1),
-        _hoisted_2,
-        createBaseVNode("p", null, toDisplayString(lorempar3.value), 1),
-        _hoisted_3
-      ], 2);
-    };
-  }
-};
-const _sfc_main = {
-  __name: "App",
-  setup(__props) {
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock(Fragment, null, [
-        createVNode(_sfc_main$2),
-        createVNode(_sfc_main$1)
-      ], 64);
-    };
-  }
-};
+const _sfc_main = {};
+const _hoisted_1 = /* @__PURE__ */ createStaticVNode('<fieldset><legend>User Input Text Controls</legend><div class="row"><div class="col-auto"><label for="text" class="form-label">Text</label><input id="text" class="form-control" type="text"></div><div class="col-auto"><label for="textarea" class="form-label">TextArea</label><textarea id="textarea" class="form-control" rows="1"></textarea></div><div class="col-auto"><label for="search" class="form-label">Search</label><input id="search" class="form-control" type="search"></div><div class="col-auto"><label for="email" class="form-label">Email</label><input id="email" class="form-control" type="email"></div><div class="col-auto"><label for="password" class="form-label">Enter password:</label><input id="password" class="form-control" type="password" name="password" minlength="8" required></div><div class="col-auto"><label for="phone" class="form-label">Phone Number</label><input id="phone" class="form-control" type="tel"></div><div class="col-auto"><label for="url" class="form-label">Link</label><input id="url" class="form-control" type="url"></div></div></fieldset><fieldset><legend>Programmable Selection Controls</legend><div class="row"><div id="animals" class="col-auto"><label for="animals" class="form-check-label">Select your favorite animals</label><div class="form-check"><input id="tiger" class="form-check-input" type="checkbox" name="animal" value="tiger" checked><label for="tiger">Tiger</label></div><div class="form-check form-check-inline"><input id="snake" class="form-check-input" name="animal" type="checkbox" value="animal"><label for="snake">Snake</label></div><div class="form-check form-check-inline"><input id="bear" class="form-check-input" name="animal" type="checkbox" value="animal"><label for="bear">Bear</label></div><div class="form-check form-check-inline"><input id="whale" class="form-check-input" name="animal" type="checkbox" value="animal"><label for="whale">Whale</label></div></div><div id="math" class="col-auto"><label for="math" class="form-check-label">What is the correct answer to: 2 + 2 = ?</label><div class="form-check"><input id="correct" class="form-check-input" type="radio" name="math" value="correct" checked><label for="correct">4 duhhh</label></div><div class="form-check"><input id="silly" class="form-check-input" type="radio" name="math" value="silly"><label for="silly">fish!</label></div></div></div><div class="row"><div class="col-auto"><label for="eyeColors" class="form-label">Select your eye color</label><input list="eyeColor-list" id="eyeColors" class="form-control" name="eyeColor"><datalist id="eyeColor-list"><option value="Brown"></option><option value="Blue"></option><option value="Green"></option><option value="Hazel"></option><option value="Grey"></option><option value="Other"></option></datalist></div><div class="col-auto"><label for="car-select" class="form-label">Select a Car Brand</label><select id="car-select" class="form-select" name="cars"><option value="Holder">Select...</option><option value="BMW">BMW</option><option value="Nissan">GMC</option><option value="Nissan">Volkswagen</option><option value="Honda">Honda</option><option value="Nissan">Toyota</option><option value="Nissan">Chevrolet</option><option value="Lambo">Lamborgini</option></select></div></div></fieldset><fieldset><legend>Numeric Selection and Display Controls</legend><div class="row"><div class="col-auto"><label for="age-picker" class="form-label">Enter your age</label><input id="age-picker" class="form-control" type="number" name="age" min="10" max="100"></div><div class="col-auto"><label for="volume" class="form-label">Volume</label><input id="volume" class="form-range" type="range" name="volume" min="0" max="100"></div></div><div class="row"><div class="col-auto"><label for="download-progress" class="form-label">File download progress</label><progress id="download-progress" max="100" value="50">50%</progress></div><div class="col-auto"><label for="batteryHealth" class="form-label">Battery Level</label><meter id="batteryHealth" min="0" max="100" low="20" high="75" optimum="100" value="80"></meter></div></div></fieldset><fieldset><legend>Pickers</legend><div class="row"><div class="col-auto"><label for="res-date" class="form-label">Enter Reservation Date:</label><input id="res-date" class="form-control" type="date" name="res-date" min="2023-01-01" max="2023-12-31"></div><div class="col-auto"><label for="res-time" class="form-label">Enter Time of Reservation:</label><input id="res-time" class="form-control" type="time" name="res-time" min="8:00" max="18:00"></div><div class="col-auto"><label for="reserve-time" class="form-label">Enter Reservation Date and Time:</label><input id="reserve-time" class="form-control" type="datetime-local" name="reserve-time" min="2023-01-01T8:00" max="2023-12-31T18:00"></div></div><div class="row"><div class="col-auto"><label for="color" class="form-label">Select a color:</label><input id="color" class="form-control form-control-color" type="color" name="color"></div><div class="col-auto"><label for="assignment" class="form-label">Attach Assignment:</label><input id="assignment" class="form-control" type="file" name="assignment" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div></div></fieldset><fieldset><legend>Buttons</legend><div><button class="btn btn-outline-primary m-2" type="submit">Submit</button><button class="btn btn-outline-primary m-2" type="reset">Reset</button><button class="btn btn-outline-primary m-2" type="button">Block</button></div><div><input id="submit" class="btn btn-outline-primary m-2" type="submit" value="Submit"><input id="reset" class="btn btn-outline-primary m-2" type="reset" value="Reset"><input id="call" class="btn btn-outline-primary m-2" type="image" src="/call.png"><input id="friend" class="btn btn-outline-primary m-2" type="button" value="Add Friend"></div></fieldset>', 5);
+function _sfc_render(_ctx, _cache) {
+  return _hoisted_1;
+}
+const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render]]);
 const main = "";
-createApp(_sfc_main).mount("#app");
+createApp(App).mount("#app");
