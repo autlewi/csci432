@@ -1,12 +1,24 @@
 
 #preview-img {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   border-radius: 50px;
 }
 #images {
   display: flex;
   align-items: center;
+}
+figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+form {
+  padding: 20px 20px 40px 20px;
+  background-color: #686b7c;
+}
+label {
+  color: #312b2f;
 }
 
 main {
