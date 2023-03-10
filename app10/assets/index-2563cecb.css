@@ -1,0 +1,40 @@
+
+form[data-v-4dab01c2] {
+  border-style: solid;
+  border-width: 1px;
+}
+fieldset[data-v-4dab01c2] {
+  padding: 10px;
+}
+
+#card {
+    display: block;
+    border-style: solid 1px darkgrey;
+    border-color: darkgrey;
+}
+
+
+main {
+  display: flex;
+  margin: 10px;
+  scale: 150%;
+}
+section {
+  margin: 10px;
+}
+#form {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+#list {
+  width: 150%;
+  padding: 10px;
+  border: solid 1px black;
+}
+label {
+  margin: 0 0 0 10px;
+}
+button {
+  margin: 3px 0 0 0;
+}
