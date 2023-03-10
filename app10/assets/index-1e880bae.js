@@ -5163,7 +5163,7 @@ function normalizeContainer(container) {
   }
   return container;
 }
-const Form_vue_vue_type_style_index_0_scoped_4dab01c2_lang = "";
+const Form_vue_vue_type_style_index_0_scoped_cbffd0de_lang = "";
 const _export_sfc = (sfc, props) => {
   const target = sfc.__vccOpts || sfc;
   for (const [key, val] of props) {
@@ -5171,7 +5171,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const _withScopeId = (n) => (pushScopeId("data-v-4dab01c2"), n = n(), popScopeId(), n);
+const _withScopeId = (n) => (pushScopeId("data-v-cbffd0de"), n = n(), popScopeId(), n);
 const _hoisted_1$2 = /* @__PURE__ */ _withScopeId(() => /* @__PURE__ */ createBaseVNode("label", { for: "name" }, "Name", -1));
 const _hoisted_2$1 = /* @__PURE__ */ _withScopeId(() => /* @__PURE__ */ createBaseVNode("br", null, null, -1));
 const _hoisted_3$1 = /* @__PURE__ */ _withScopeId(() => /* @__PURE__ */ createBaseVNode("label", { for: "address" }, "Email", -1));
@@ -5221,7 +5221,7 @@ const _sfc_main$3 = {
     };
   }
 };
-const Form = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-4dab01c2"]]);
+const Form = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-cbffd0de"]]);
 const Card_vue_vue_type_style_index_0_lang = "";
 const _hoisted_1$1 = { id: "card" };
 const _sfc_main$2 = {
