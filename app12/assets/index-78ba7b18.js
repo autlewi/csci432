@@ -6982,7 +6982,8 @@ const _hoisted_6 = /* @__PURE__ */ createBaseVNode("div", { class: "images" }, [
 ], -1);
 const _hoisted_7 = { key: 1 };
 const _hoisted_8 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
-const _hoisted_9 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
+const _hoisted_9 = /* @__PURE__ */ createBaseVNode("p", { class: "small" }, "items/:id doesn't seem to want to work when I upload to website - works on local though", -1);
+const _hoisted_10 = /* @__PURE__ */ createBaseVNode("br", null, null, -1);
 const _sfc_main = {
   __name: "ItemsView",
   props: ["main"],
@@ -7020,7 +7021,7 @@ const _sfc_main = {
         createBaseVNode("div", null, [
           _ctx.$route.params.id ? (openBlock(), createElementBlock("div", _hoisted_2, [
             createBaseVNode("p", null, [
-              createTextVNode(" Our custom hand-crafted " + toDisplayString(_ctx.$route.params.id) + " is a lovely piece of clothing that will fit right into you're wardrobe! It will look stunning in the upcoming warm weather! ", 1),
+              createTextVNode(" Our custom hand-crafted " + toDisplayString(_ctx.$route.params.id) + " is a lovely piece of clothing that will fit right into you wardrobe! It will look stunning in the upcoming warm weather! ", 1),
               _hoisted_3,
               _hoisted_4
             ]),
@@ -7031,6 +7032,7 @@ const _sfc_main = {
             createTextVNode(" This is the category list! If you're interested in a shirt enter its name exact name in the URL bar to see more info! "),
             _hoisted_8,
             _hoisted_9,
+            _hoisted_10,
             createBaseVNode("ul", null, [
               createBaseVNode("li", null, [
                 createVNode(ItemCard, normalizeProps(guardReactiveProps(unref(itemInfo))), null, 16)
