@@ -1,0 +1,68 @@
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+img{
+    height: 150px;
+    width: 150px;
+}
+.experiments {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+.experiment {
+  border: 1px solid #ccc;
+  padding: 1rem;
+}
+.fade-enter-active,
+.fade-leave-active,
+.list-enter-active,
+.list-leave-active,
+.slide-enter-active,
+.slide-leave-active,
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-enter, 
+.fade-leave-to,
+.list-enter,
+.list-leave-to,
+.slide-enter,
+.slide-leave-to,
+.slide-down-enter,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.list-enter,
+.list-leave-to {
+  transform: translateY(20px);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+.slide-down-enter,
+.slide-down-leave-to {
+  transform: translateY(-100%);
+}
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: transform 0.5s;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  margin-bottom: 0.5rem;
+}
+button {
+  margin-top: 1rem;
+}
