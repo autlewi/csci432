@@ -5355,6 +5355,29 @@ var createScene = function() {
         meshes[i].setParent(pizza);
       }
       pizza.position.y = -15;
+      pizza.position.x = 400;
+      pizza.position.z = -200;
+    }
+  );
+  BABYLON.SceneLoader.ImportMesh(
+    null,
+    "partySupplies/",
+    "pizza1.glb",
+    scene2,
+    function(meshes, particalSystem, skeletons) {
+      console.log(meshes);
+      for (let mesh of meshes) {
+        mesh.checkCollisions = true;
+        mesh.rotation.y = 0.625;
+        mesh.position.x = 20;
+        mesh.position.z = 10;
+        mesh.scaling = new B.Vector3(1.5, 1.5, 1.5);
+      }
+      let pizza = meshes[0];
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].setParent(pizza);
+      }
+      pizza.position.y = -15;
       pizza.position.x = 375;
       pizza.position.z = -170;
     }
@@ -5428,9 +5451,34 @@ var createScene = function() {
       cup.position.z = -180;
     }
   );
+  BABYLON.SceneLoader.ImportMesh(
+    null,
+    "partySupplies/",
+    "party_streamers.glb",
+    scene2,
+    function(meshes, particalSystem, skeletons) {
+      console.log(meshes);
+      for (let mesh of meshes) {
+        mesh.checkCollisions = true;
+        mesh.position.x = 20;
+        mesh.position.z = 10;
+        mesh.scaling = new B.Vector3(1.1, 1.1, 1.1);
+      }
+      let streamers = meshes[0];
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].setParent(streamers);
+      }
+      streamers.position.y = 17;
+      streamers.position.x = 780;
+      streamers.position.z = -170;
+    }
+  );
   return scene2;
 };
 var scene = createScene();
+var music = new BABYLON.Sound("maxwellTheme", "maxwell.mp3", scene, null, { loop: true, autoplay: true });
+let volume = 0.3;
+music.setVolume(volume);
 var loop = function() {
   scene.render();
 };
